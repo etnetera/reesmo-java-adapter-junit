@@ -24,56 +24,54 @@ import org.junit.runners.model.InitializationError;
 import org.junit.runners.model.Statement;
 
 public class ReesmoJUnitRunner extends BlockJUnit4ClassRunner {
-	
-	protected ReesmoJUnitExecutionListener listener;
-	
+
+	protected static ReesmoJUnitExecutionListener listener;
+
 	public ReesmoJUnitRunner(Class<?> klass) throws InitializationError {
 		super(klass);
 	}
 
 	@Override
 	public synchronized void run(RunNotifier notifier) {
-		listener = new ReesmoJUnitExecutionListener();
-		notifier.addListener(listener);
+		if (listener == null) {
+			listener = new ReesmoJUnitExecutionListener();
+			notifier.addListener(listener);
+		}
 		super.run(notifier);
 	}
-	
+
 	@Override
-	protected Statement withBefores(FrameworkMethod method, Object target,
-            Statement statement) {
-        List<FrameworkMethod> befores = getTestClass().getAnnotatedMethods(
-                Before.class);
-        return befores.isEmpty() ? statement : new RunBefores(method, statement,
-                befores, target);
-    }
-	
+	protected Statement withBefores(FrameworkMethod method, Object target, Statement statement) {
+		return new RunBefores(method, statement, getTestClass().getAnnotatedMethods(Before.class), target);
+	}
+
 	public class RunBefores extends Statement {
-		
+
 		protected final FrameworkMethod method;
-		
-	    protected final Statement next;
 
-	    protected final Object target;
+		protected final Statement next;
 
-	    protected final List<FrameworkMethod> befores;
+		protected final Object target;
 
-	    public RunBefores(FrameworkMethod method, Statement next, List<FrameworkMethod> befores, Object target) {
-	    	this.method = method;
-	        this.next = next;
-	        this.befores = befores;
-	        this.target = target;
-	    }
+		protected final List<FrameworkMethod> befores;
 
-	    @Override
-	    public void evaluate() throws Throwable {
-	        for (FrameworkMethod before : befores) {
-	            before.invokeExplosively(target);
-	        }
-	        if (target instanceof ReesmoJUnitTest) {
-	        	listener.initTest((ReesmoJUnitTest) target, method);
-	        }
-	        next.evaluate();
-	    }
+		public RunBefores(FrameworkMethod method, Statement next, List<FrameworkMethod> befores, Object target) {
+			this.method = method;
+			this.next = next;
+			this.befores = befores;
+			this.target = target;
+		}
+
+		@Override
+		public void evaluate() throws Throwable {
+			for (FrameworkMethod before : befores) {
+				before.invokeExplosively(target);
+			}
+			if (target instanceof ReesmoJUnitTest) {
+				listener.initTest((ReesmoJUnitTest) target, method);
+			}
+			next.evaluate();
+		}
 	}
 
 }
