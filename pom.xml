@@ -4,7 +4,7 @@
 
 	<groupId>cz.etnetera</groupId>
 	<artifactId>reesmo-adapter-junit</artifactId>
-	<version>0.0.2</version>
+	<version>0.1.0</version>
 	<packaging>jar</packaging>
 
 	<name>Reesmo Java Adapter JUnit</name>
@@ -63,7 +63,7 @@
 		<dependency>
 			<groupId>cz.etnetera</groupId>
 			<artifactId>reesmo-writer</artifactId>
-			<version>0.0.1</version>
+			<version>0.1.0</version>
 		</dependency>
 		<dependency>
 			<groupId>junit</groupId>

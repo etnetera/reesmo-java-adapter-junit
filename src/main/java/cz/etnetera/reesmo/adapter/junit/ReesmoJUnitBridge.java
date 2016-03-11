@@ -16,6 +16,7 @@ package cz.etnetera.reesmo.adapter.junit;
 
 import java.io.File;
 
+import cz.etnetera.reesmo.writer.model.result.Result;
 import cz.etnetera.reesmo.writer.storage.FileWithPath;
 
 /**
@@ -49,6 +50,20 @@ public class ReesmoJUnitBridge {
 	 */
 	public void addAttachment(FileWithPath file) {
 		listener.getAttachments(resultKey).add(file);
+	}
+	
+	/**
+	 * Returns instance of Result which will be stored
+	 * in Reesmo. Feel free to add specific values,
+	 * i.e. notes, labels, categories, types, links etc.
+	 * 
+	 * Only attachments need to be added separately using 
+	 * {@link ReesmoJUnitBridge#addAttachment(File)} like methods.
+	 * 
+	 * @return
+	 */
+	public Result getResult() {
+		return listener.getResult(resultKey);
 	}
 	
 }

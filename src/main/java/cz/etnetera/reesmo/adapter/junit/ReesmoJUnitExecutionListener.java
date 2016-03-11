@@ -43,13 +43,14 @@ public class ReesmoJUnitExecutionListener extends RunListener {
 	protected Map<String, List<Object>> attachmentsMap = new ConcurrentHashMap<>();
 
 	public void initTest(ReesmoJUnitTest testClassInstance, FrameworkMethod testMethod) {
-		String resultKey = getResultKey(testClassInstance.getClass().getName(), testMethod.getName());
+		String resultKey = getResultKey(testClassInstance.getClass(), testMethod.getName());
 		testClassInstance.registerReesmoBridge(new ReesmoJUnitBridge(resultKey, this));
 	}
 	
 	@Override
 	public void testStarted(Description description) throws Exception {
 		Result result = getResult(description);
+		result.setName(getResultName(description));
 		result.setStartedAt(new Date());
 		result.setAutomated(true);
 		Suite suite = getSuite(description);
@@ -103,6 +104,7 @@ public class ReesmoJUnitExecutionListener extends RunListener {
 	@Override
 	public void testIgnored(Description description) throws Exception {
 		Result result = getResult(description);
+		result.setName(getResultName(description));
 		result.setStartedAt(new Date());
 		result.setEndedAt(result.getEndedAt());
 		result.setAutomated(true);
@@ -114,18 +116,16 @@ public class ReesmoJUnitExecutionListener extends RunListener {
 	}
 
 	protected Result getResult(Description description) {
-		String key = getResultKey(description);
-		Result result = resultsMap.get(key);
+		return getResult(getResultKey(description));
+	}
+	
+	protected Result getResult(String resultKey) {
+		Result result = resultsMap.get(resultKey);
 		if (result == null) {
 			result = new Result();
-			result.setName(getResultName(description));
-			resultsMap.put(key, result);
+			resultsMap.put(resultKey, result);
 		}
 		return result;
-	}
-
-	protected void setResult(Description description, Result result) {
-		resultsMap.put(getResultKey(description), result);
 	}
 
 	protected Suite getSuite(Description description) {
@@ -148,15 +148,19 @@ public class ReesmoJUnitExecutionListener extends RunListener {
 	}
 
 	protected String getResultKey(Description description) {
-		return getResultKey(description.getClassName(), description.getMethodName());
+		return getResultKey(description.getTestClass(), description.getMethodName());
 	}
 
-	protected String getResultKey(String className, String methodName) {
-		return className + "." + methodName;
+	protected String getResultKey(Class<?> testClass, String methodName) {
+		return testClass.getName() + "." + methodName;
 	}
 
 	protected String getResultName(Description description) {
-		return description.getTestClass().getSimpleName() + "." + description.getMethodName();
+		return getResultName(description.getTestClass(), description.getMethodName());
+	}
+	
+	protected String getResultName(Class<?> testClass, String methodName) {
+		return testClass.getSimpleName() + "." + methodName;
 	}
 
 	protected String getSuiteKey(Description description) {
